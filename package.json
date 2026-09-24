@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "start": "node main.ts",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "build": "esbuild src/main.ts --bundle --outfile=public/game.js",
+    "serve": "esbuild --servedir=public --serve=127.0.0.1:8000"
   },
   "devDependencies": {
+    "esbuild": "^0.25.0",
     "typescript": "^5.9.0"
   }
 }
