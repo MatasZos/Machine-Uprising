@@ -3,8 +3,8 @@
   // src/main.ts
   var SCREEN_WIDTH = 800;
   var SCREEN_HEIGHT = 600;
-  var LIGHT_BLUE = "#add8e6";
-  var BACKGROUND_COLOUR = LIGHT_BLUE;
+  var RED = "#ff0000";
+  var BACKGROUND_COLOUR = RED;
   addEventListener("load", () => {
     const canvas = document.getElementById("gameCanvas");
     canvas.width = SCREEN_WIDTH;
