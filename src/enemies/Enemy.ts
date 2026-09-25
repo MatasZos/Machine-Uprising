@@ -1,0 +1,1 @@
+// Base enemy class
