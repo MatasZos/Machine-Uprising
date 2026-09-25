@@ -12,5 +12,21 @@
   "devDependencies": {
     "esbuild": "^0.25.0",
     "typescript": "^5.9.0"
+  },
+  "description": "2D lane-based tower defence game.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatasZos/Machine-Uprising.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatasZos/Machine-Uprising/issues"
+  },
+  "homepage": "https://github.com/MatasZos/Machine-Uprising#readme",
+  "dependencies": {
+    "phaser": "^4.2.1"
   }
 }

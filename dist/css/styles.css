@@ -54,6 +54,7 @@ h3 {
 }
 
 /* Game canvas - 800 x 600, shrinks to fit narrow windows (the game still uses 800 x 600 pixels) */
+
 #gameCanvas {
   display: block;
   max-width: 100%;
