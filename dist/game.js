@@ -1,9 +1,11 @@
 "use strict";
 (() => {
+  // src/constants.ts
+  var RED = "#ff0000";
+
   // src/main.ts
   var SCREEN_WIDTH = 800;
   var SCREEN_HEIGHT = 600;
-  var RED = "#ff0000";
   var BACKGROUND_COLOUR = RED;
   addEventListener("load", () => {
     const canvas = document.getElementById("gameCanvas");
