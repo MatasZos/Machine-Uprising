@@ -1,18 +1,21 @@
-import { RED, LIGHT_BLUE } from './constants.ts';
+import * as Phaser from 'phaser';
 
-const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 600;
+class MainScene extends Phaser.Scene{
+  constructor(){
+    super("MainScene");
+  }
 
-const BACKGROUND_COLOUR = RED;
+  create(){
+    this.add.text(400,200, "Machine Uprising", {fontSize: "40px", color: "#000000"}).setOrigin(0.5);
+  }
+}
 
-// run after page loaded
-addEventListener("load", () => {
-    const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-    canvas.width = SCREEN_WIDTH;
-    canvas.height = SCREEN_HEIGHT;
+const config: Phaser.Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  width:800,
+  height:600,
+  backgroundColor: "#ffffff",
+  scene: MainScene
+};
 
-    const g = canvas.getContext("2d")!;
-
-    g.fillStyle = BACKGROUND_COLOUR;
-    g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-});
+const game = new Phaser.Game(config);
