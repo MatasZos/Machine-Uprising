@@ -145993,9 +145993,16 @@
     constructor() {
       super("MainScene");
     }
+    preload() {
+      this.load.image("player", "assets/learning/player.png");
+    }
     create() {
       const { width, height } = this.scale;
-      this.player = this.add.rectangle(width / 2, height - 40, 60, 16, 16776960);
+      this.player = this.add.image(
+        width / 2,
+        height - 40,
+        "player"
+      );
       const keyboard = this.input.keyboard;
       this.cursors = keyboard.createCursorKeys();
       this.keyA = keyboard.addKey(__webpack_exports__default.Input.Keyboard.KeyCodes.A);

@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 const SPEED = 300; // pixels per second
 
 class MainScene extends Phaser.Scene {
-  private player!: Phaser.GameObjects.Rectangle;
+  private player!: Phaser.GameObjects.Image;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keyA!: Phaser.Input.Keyboard.Key;
   private keyD!: Phaser.Input.Keyboard.Key;
@@ -12,11 +12,19 @@ class MainScene extends Phaser.Scene {
     super('MainScene');
   }
 
+  preload() {
+    this.load.image("player", "assets/learning/player.png");
+  }
+
   create() {
     const { width, height } = this.scale;
 
-    // Small yellow rectangle near the bottom centre: x, y, width, height, colour
-    this.player = this.add.rectangle(width / 2, height - 40, 60, 16, 0xffff00);
+    // Player image near the bottom centre
+    this.player = this.add.image(
+      width / 2,
+      height - 40,
+      "player"
+    );
 
     // Arrow keys + A/D
     const keyboard = this.input.keyboard!;
