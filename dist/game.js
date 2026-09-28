@@ -145990,6 +145990,7 @@
     cursors;
     keyA;
     keyD;
+    grid;
     constructor() {
       super("MainScene");
     }
@@ -146007,6 +146008,14 @@
       this.cursors = keyboard.createCursorKeys();
       this.keyA = keyboard.addKey(__webpack_exports__default.Input.Keyboard.KeyCodes.A);
       this.keyD = keyboard.addKey(__webpack_exports__default.Input.Keyboard.KeyCodes.D);
+      const graphics = this.add.graphics();
+      graphics.lineStyle(1, 16777215);
+      const cellSize = 50;
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < 9; x++) {
+          graphics.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
     }
     update(_time, delta) {
       let direction = 0;
@@ -146024,7 +146033,7 @@
     type: __webpack_exports__default.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: "#000000",
+    backgroundColor: "#008409",
     parent: "game-container",
     scene: [MainScene]
   });

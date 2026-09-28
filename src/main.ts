@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { Grid } from "./grid/Grid";
+
 
 const SPEED = 300; // pixels per second
 
@@ -7,6 +9,7 @@ class MainScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keyA!: Phaser.Input.Keyboard.Key;
   private keyD!: Phaser.Input.Keyboard.Key;
+  private grid!: Grid;
 
   constructor() {
     super('MainScene');
@@ -31,6 +34,16 @@ class MainScene extends Phaser.Scene {
     this.cursors = keyboard.createCursorKeys();
     this.keyA = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.keyD = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+    const graphics = this.add.graphics();
+    graphics.lineStyle(1, 0xffffff);
+
+    const cellSize = 50;
+
+    for (let y = 0; y < 5; y++) {
+      for (let x = 0; x < 9; x++) {
+        graphics.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
   }
 
   update(_time: number, delta: number) {
@@ -54,7 +67,7 @@ new Phaser.Game({
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  backgroundColor: '#000000',
+  backgroundColor: '#008409',
   parent: 'game-container',
   scene: [MainScene],
 });
