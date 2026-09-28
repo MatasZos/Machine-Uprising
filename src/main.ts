@@ -1,14 +1,20 @@
 import Phaser from 'phaser';
 import { Grid } from "./grid/Grid";
+import {Defender} from "./defenders/Defender";
 
 
 const SPEED = 300; // pixels per second
 
+const GRID_ROWS = 5;
+const GRID_COLS = 8;
+const CELL_SIZE = 75
+
+const GRID_X = 100;
+const GRID_Y = 100;
+
+
+
 class MainScene extends Phaser.Scene {
-  private player!: Phaser.GameObjects.Image;
-  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  private keyA!: Phaser.Input.Keyboard.Key;
-  private keyD!: Phaser.Input.Keyboard.Key;
   private grid!: Grid;
 
   constructor() {
@@ -16,51 +22,64 @@ class MainScene extends Phaser.Scene {
   }
 
   preload() {
+    //temp image for defender
     this.load.image("player", "assets/learning/player.png");
   }
 
-  create() {
-    const { width, height } = this.scale;
-
-    // Player image near the bottom centre
-    this.player = this.add.image(
-      width / 2,
-      height - 40,
-      "player"
-    );
-
-    // Arrow keys + A/D
-    const keyboard = this.input.keyboard!;
-    this.cursors = keyboard.createCursorKeys();
-    this.keyA = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-    this.keyD = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
+  private drawGrid(){
     const graphics = this.add.graphics();
-    graphics.lineStyle(1, 0xffffff);
+    graphics.lineStyle(2, 0xffffff, 0.5);
 
-    const cellSize = 50;
 
-    for (let y = 0; y < 5; y++) {
-      for (let x = 0; x < 9; x++) {
-        graphics.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
-      }
+    for(let row= 0; row< GRID_ROWS; row++){
+        for(let col =0; col< GRID_COLS; col++){
+            const x = GRID_X + col * CELL_SIZE;
+            const y = GRID_Y + row * CELL_SIZE;
+
+            graphics.strokeRect( x, y, CELL_SIZE, CELL_SIZE);
+
+        }
+    }
   }
 
-  update(_time: number, delta: number) {
-    let direction = 0;
+  private handleGridClick(){
+    //convert the mouse position into a grid column
 
-    if (this.cursors.left.isDown || this.keyA.isDown) direction -= 1;
-    if (this.cursors.right.isDown || this.keyD.isDown) direction += 1;
 
-    // delta is in milliseconds, so movement speed is frame-rate independent
-    const halfWidth = this.player.width / 2;
+    //convert the mosue position into a grid row
 
-    this.player.x = Phaser.Math.Clamp(
-      this.player.x + direction * SPEED * (delta / 1000),
-      halfWidth,
-      this.scale.width - halfWidth
-    );
+
+    // ignore any clicks outside of the grid
+
+
+    //get the clicked cell
+
+
+    //ensure no other defenders cna be put in the same cell;
+
+
+    //find the centre of the clicked cell
+
+
+    //create a defender at the chosen position
+
+
+    //store the defender in the grid
   }
+
+  create() {
+    this.grid = new Grid(GRID_ROWS, GRID_COLS);
+
+
+    this.drawGrid();
+
+    this.input.on("pointerdown", this.handleGridClick, this);
+
+  }
+
+
+
+    
 }
 
 new Phaser.Game({
