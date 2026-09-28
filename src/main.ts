@@ -3,8 +3,6 @@ import { Grid } from "./grid/Grid";
 import {Defender} from "./defenders/Defender";
 
 
-const SPEED = 300; // pixels per second
-
 const GRID_ROWS = 5;
 const GRID_COLS = 8;
 const CELL_SIZE = 75
@@ -42,29 +40,51 @@ class MainScene extends Phaser.Scene {
     }
   }
 
-  private handleGridClick(){
+  private handleGridClick(pointer: Phaser.Input.Pointer){
     //convert the mouse position into a grid column
+
+    const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
 
 
     //convert the mosue position into a grid row
 
+    
+    const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
 
     // ignore any clicks outside of the grid
+
+    if( row<0 || row>=GRID_ROWS || col<0 || col>=GRID_COLS){
+        return;
+    }
 
 
     //get the clicked cell
 
+    const cell = this.grid.getCell(row,col)
+
 
     //ensure no other defenders cna be put in the same cell;
-
+    
+    if (!cell.isEmpty()){
+        return;
+    }
 
     //find the centre of the clicked cell
+
+    const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE /2
+
+    const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE /2
+
 
 
     //create a defender at the chosen position
 
+    const defender = new Defender(this, defenderX, defenderY, "player")
+
 
     //store the defender in the grid
+
+    this.grid.placeHuman(row,col,defender)
   }
 
   create() {

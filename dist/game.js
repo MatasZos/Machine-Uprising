@@ -45933,12 +45933,12 @@
       var Class2 = __webpack_require__2(83419);
       var Shape = __webpack_require__2(17803);
       var GridRender = __webpack_require__2(26015);
-      var Grid = new Class2({
+      var Grid2 = new Class2({
         Extends: Shape,
         Mixins: [
           GridRender
         ],
-        initialize: function Grid2(scene, x, y, width, height, cellWidth, cellHeight, fillColor, fillAlpha, strokeFillColor, strokeFillAlpha) {
+        initialize: function Grid3(scene, x, y, width, height, cellWidth, cellHeight, fillColor, fillAlpha, strokeFillColor, strokeFillAlpha) {
           if (x === void 0) {
             x = 0;
           }
@@ -46043,7 +46043,7 @@
           return this;
         }
       });
-      module.exports = Grid;
+      module.exports = Grid2;
     },
     /***/
     49912(module, __unused_webpack_exports, __webpack_require__2) {
@@ -46174,9 +46174,9 @@
     /***/
     34137(__unused_webpack_module, __unused_webpack_exports, __webpack_require__2) {
       var GameObjectFactory = __webpack_require__2(39429);
-      var Grid = __webpack_require__2(30479);
+      var Grid2 = __webpack_require__2(30479);
       GameObjectFactory.register("grid", function(x, y, width, height, cellWidth, cellHeight, fillColor, fillAlpha, outlineFillColor, outlineFillAlpha) {
-        return this.displayList.add(new Grid(this.scene, x, y, width, height, cellWidth, cellHeight, fillColor, fillAlpha, outlineFillColor, outlineFillAlpha));
+        return this.displayList.add(new Grid2(this.scene, x, y, width, height, cellWidth, cellHeight, fillColor, fillAlpha, outlineFillColor, outlineFillAlpha));
       });
     },
     /***/
@@ -145983,13 +145983,80 @@
   var __webpack_exports__WEBGL = __webpack_exports__.CB;
   var __webpack_exports__default = __webpack_exports__.Ay;
 
+  // src/grid/Cell.ts
+  var Cell = class {
+    occupant;
+    constructor() {
+      this.occupant = null;
+    }
+    setOccupant(o) {
+      this.occupant = o;
+    }
+    clear() {
+      this.occupant = null;
+    }
+    isEmpty() {
+      return this.occupant === null;
+    }
+  };
+
+  // src/grid/Grid.ts
+  var Grid = class {
+    rows;
+    cols;
+    cells;
+    constructor(rows, cols) {
+      this.rows = rows;
+      this.cols = cols;
+      this.cells = [];
+      for (let r = 0; r < rows; r++) {
+        const row = [];
+        for (let c = 0; c < cols; c++) {
+          row.push(new Cell());
+        }
+        this.cells.push(row);
+      }
+    }
+    getCell(row, col) {
+      return this.cells[row][col];
+    }
+    placeHuman(row, col, human) {
+      const cell = this.getCell(row, col);
+      if (cell.isEmpty()) {
+        cell.setOccupant(human);
+      }
+    }
+    removeOccupant(row, col) {
+      const cell = this.getCell(row, col);
+      cell.clear();
+    }
+  };
+
+  // src/defenders/Defender.ts
+  var Defender = class extends __webpack_exports__default.GameObjects.Sprite {
+    health;
+    damage;
+    constructor(scene, x, y, texture) {
+      super(scene, x, y, texture);
+      scene.add.existing(this);
+      this.health = 100;
+      this.damage = 20;
+    }
+    takeDamage(amount) {
+      this.health -= amount;
+      if (this.health <= 0) {
+        this.destroy();
+      }
+    }
+  };
+
   // src/main.ts
-  var SPEED = 300;
+  var GRID_ROWS = 5;
+  var GRID_COLS = 8;
+  var CELL_SIZE = 75;
+  var GRID_X = 100;
+  var GRID_Y = 100;
   var MainScene = class extends __webpack_exports__default.Scene {
-    player;
-    cursors;
-    keyA;
-    keyD;
     grid;
     constructor() {
       super("MainScene");
@@ -145997,36 +146064,36 @@
     preload() {
       this.load.image("player", "assets/learning/player.png");
     }
-    create() {
-      const { width, height } = this.scale;
-      this.player = this.add.image(
-        width / 2,
-        height - 40,
-        "player"
-      );
-      const keyboard = this.input.keyboard;
-      this.cursors = keyboard.createCursorKeys();
-      this.keyA = keyboard.addKey(__webpack_exports__default.Input.Keyboard.KeyCodes.A);
-      this.keyD = keyboard.addKey(__webpack_exports__default.Input.Keyboard.KeyCodes.D);
+    drawGrid() {
       const graphics = this.add.graphics();
-      graphics.lineStyle(1, 16777215);
-      const cellSize = 50;
-      for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 9; x++) {
-          graphics.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      graphics.lineStyle(2, 16777215, 0.5);
+      for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
+          const x = GRID_X + col * CELL_SIZE;
+          const y = GRID_Y + row * CELL_SIZE;
+          graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
         }
       }
     }
-    update(_time, delta) {
-      let direction = 0;
-      if (this.cursors.left.isDown || this.keyA.isDown) direction -= 1;
-      if (this.cursors.right.isDown || this.keyD.isDown) direction += 1;
-      const halfWidth = this.player.width / 2;
-      this.player.x = __webpack_exports__default.Math.Clamp(
-        this.player.x + direction * SPEED * (delta / 1e3),
-        halfWidth,
-        this.scale.width - halfWidth
-      );
+    handleGridClick(pointer) {
+      const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
+      const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
+      if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) {
+        return;
+      }
+      const cell = this.grid.getCell(row, col);
+      if (!cell.isEmpty()) {
+        return;
+      }
+      const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
+      const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+      const defender = new Defender(this, defenderX, defenderY, "player");
+      this.grid.placeHuman(row, col, defender);
+    }
+    create() {
+      this.grid = new Grid(GRID_ROWS, GRID_COLS);
+      this.drawGrid();
+      this.input.on("pointerdown", this.handleGridClick, this);
     }
   };
   new __webpack_exports__default.Game({
