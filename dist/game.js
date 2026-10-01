@@ -146096,8 +146096,6 @@
     }
   };
 
-<<<<<<< Updated upstream
-=======
   // src/enemies/Enemy.ts
   var Enemy = class extends __webpack_exports__default.GameObjects.Sprite {
     health;
@@ -146121,7 +146119,6 @@
     }
   };
 
->>>>>>> Stashed changes
   // src/main.ts
   var GRID_ROWS = 5;
   var GRID_COLS = 8;
@@ -146130,16 +146127,8 @@
   var GRID_Y = 100;
   var MainScene = class extends __webpack_exports__default.Scene {
     grid;
-<<<<<<< Updated upstream
     selectedDefender = null;
-=======
     enemies = [];
-    update(_time, delta) {
-      for (const enemy of this.enemies) {
-        enemy.move(delta);
-      }
-    }
->>>>>>> Stashed changes
     constructor() {
       super("MainScene");
     }
@@ -146190,29 +146179,20 @@
       }
       const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
       const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
-<<<<<<< Updated upstream
       if (this.selectedDefender === null) {
         return;
       }
-=======
->>>>>>> Stashed changes
       const defender = new Shooter(
         this,
         defenderX,
         defenderY,
-<<<<<<< Updated upstream
         this.selectedDefender
-=======
-        "player"
->>>>>>> Stashed changes
       );
       this.grid.placeHuman(
         row,
         col,
         defender
       );
-<<<<<<< Updated upstream
-=======
     }
     spawnEnemy() {
       const row = __webpack_exports__default.Math.Between(0, GRID_ROWS - 1);
@@ -146225,7 +146205,6 @@
         "enemy"
       );
       this.enemies.push(enemy);
->>>>>>> Stashed changes
     }
     create() {
       this.grid = new Grid(
@@ -146233,17 +146212,12 @@
         GRID_COLS
       );
       this.drawGrid();
-<<<<<<< Updated upstream
       this.drawToolbar();
-=======
->>>>>>> Stashed changes
       this.input.on(
         "pointerdown",
         this.handleGridClick,
         this
       );
-<<<<<<< Updated upstream
-=======
       this.spawnEnemy();
       this.time.addEvent({
         delay: 3e3,
@@ -146251,7 +146225,6 @@
         callbackScope: this,
         loop: true
       });
->>>>>>> Stashed changes
     }
   };
   new __webpack_exports__default.Game({

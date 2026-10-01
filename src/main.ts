@@ -14,6 +14,7 @@ class MainScene extends Phaser.Scene {
 
   private grid!: Grid;
   private selectedDefender: string | null = null;
+  private enemies: Enemy[] = [];
 
   constructor() {
     super('MainScene');
