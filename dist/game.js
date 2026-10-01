@@ -146050,6 +146050,52 @@
     }
   };
 
+  // src/objects/projectile.ts
+  var Projectile = class extends __webpack_exports__default.GameObjects.Rectangle {
+    constructor(scene, x, y) {
+      super(
+        scene,
+        x,
+        y,
+        15,
+        6,
+        16776960
+      );
+      scene.add.existing(this);
+      scene.physics.add.existing(this);
+      const body = this.body;
+      body.setVelocityX(300);
+      scene.time.delayedCall(3e3, () => {
+        this.destroy();
+      });
+    }
+  };
+
+  // src/defenders/Shooter.ts
+  var Shooter = class extends Defender {
+    constructor(scene, x, y, texture) {
+      super(scene, x, y, texture);
+      this.health = 100;
+      this.damage = 20;
+      console.log("Shooter created");
+      scene.time.addEvent({
+        delay: 1e3,
+        callback: () => {
+          this.shoot();
+        },
+        loop: true
+      });
+    }
+    shoot() {
+      console.log("Shooter fired");
+      new Projectile(
+        this.scene,
+        this.x + 30,
+        this.y
+      );
+    }
+  };
+
   // src/main.ts
   var GRID_ROWS = 5;
   var GRID_COLS = 8;
@@ -146058,6 +146104,7 @@
   var GRID_Y = 100;
   var MainScene = class extends __webpack_exports__default.Scene {
     grid;
+    selectedDefender = null;
     constructor() {
       super("MainScene");
     }
@@ -146071,13 +146118,33 @@
         for (let col = 0; col < GRID_COLS; col++) {
           const x = GRID_X + col * CELL_SIZE;
           const y = GRID_Y + row * CELL_SIZE;
-          graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+          graphics.strokeRect(
+            x,
+            y,
+            CELL_SIZE,
+            CELL_SIZE
+          );
         }
       }
     }
+    drawToolbar() {
+      const toolbarX = 100;
+      const toolbarY = 20;
+      const button = this.add.rectangle(toolbarX, toolbarY, 150, 40, 3355443);
+      const label = this.add.text(toolbarX, toolbarY, "Shooter", { fontSize: "18px", color: "#ffffff" });
+      button.setInteractive({ useHandCursor: true });
+      button.on("pointerdown", () => {
+        this.selectedDefender = "player";
+        label.setColor("#00ff00");
+      });
+    }
     handleGridClick(pointer) {
-      const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
-      const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
+      const col = Math.floor(
+        (pointer.x - GRID_X) / CELL_SIZE
+      );
+      const row = Math.floor(
+        (pointer.y - GRID_Y) / CELL_SIZE
+      );
       if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) {
         return;
       }
@@ -146087,13 +146154,33 @@
       }
       const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
       const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
-      const defender = new Defender(this, defenderX, defenderY, "player");
-      this.grid.placeHuman(row, col, defender);
+      if (this.selectedDefender === null) {
+        return;
+      }
+      const defender = new Shooter(
+        this,
+        defenderX,
+        defenderY,
+        this.selectedDefender
+      );
+      this.grid.placeHuman(
+        row,
+        col,
+        defender
+      );
     }
     create() {
-      this.grid = new Grid(GRID_ROWS, GRID_COLS);
+      this.grid = new Grid(
+        GRID_ROWS,
+        GRID_COLS
+      );
       this.drawGrid();
-      this.input.on("pointerdown", this.handleGridClick, this);
+      this.drawToolbar();
+      this.input.on(
+        "pointerdown",
+        this.handleGridClick,
+        this
+      );
     }
   };
   new __webpack_exports__default.Game({
@@ -146102,6 +146189,13 @@
     height: 600,
     backgroundColor: "#008409",
     parent: "game-container",
+    // allows projectiles to move
+    physics: {
+      default: "arcade",
+      arcade: {
+        debug: false
+      }
+    },
     scene: [MainScene]
   });
 })();
