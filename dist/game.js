@@ -146134,7 +146134,7 @@
     }
     preload() {
       this.load.image("player", "assets/learning/player.png");
-      this.load.image("enemy", "assets/learning/player.png");
+      this.load.image("enemy", "assets/learning/robot.jpg");
     }
     drawGrid() {
       const graphics = this.add.graphics();
