@@ -146096,6 +146096,32 @@
     }
   };
 
+<<<<<<< Updated upstream
+=======
+  // src/enemies/Enemy.ts
+  var Enemy = class extends __webpack_exports__default.GameObjects.Sprite {
+    health;
+    speed;
+    damage;
+    constructor(scene, x, y, texture) {
+      super(scene, x, y, texture);
+      scene.add.existing(this);
+      this.health = 100;
+      this.speed = 50;
+      this.damage = 10;
+    }
+    takeDamage(amount) {
+      this.health -= amount;
+      if (this.health <= 0) {
+        this.destroy();
+      }
+    }
+    move(delta) {
+      this.x -= this.speed * (delta / 1e3);
+    }
+  };
+
+>>>>>>> Stashed changes
   // src/main.ts
   var GRID_ROWS = 5;
   var GRID_COLS = 8;
@@ -146104,12 +146130,22 @@
   var GRID_Y = 100;
   var MainScene = class extends __webpack_exports__default.Scene {
     grid;
+<<<<<<< Updated upstream
     selectedDefender = null;
+=======
+    enemies = [];
+    update(_time, delta) {
+      for (const enemy of this.enemies) {
+        enemy.move(delta);
+      }
+    }
+>>>>>>> Stashed changes
     constructor() {
       super("MainScene");
     }
     preload() {
       this.load.image("player", "assets/learning/player.png");
+      this.load.image("enemy", "assets/learning/player.png");
     }
     drawGrid() {
       const graphics = this.add.graphics();
@@ -146154,20 +146190,42 @@
       }
       const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
       const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+<<<<<<< Updated upstream
       if (this.selectedDefender === null) {
         return;
       }
+=======
+>>>>>>> Stashed changes
       const defender = new Shooter(
         this,
         defenderX,
         defenderY,
+<<<<<<< Updated upstream
         this.selectedDefender
+=======
+        "player"
+>>>>>>> Stashed changes
       );
       this.grid.placeHuman(
         row,
         col,
         defender
       );
+<<<<<<< Updated upstream
+=======
+    }
+    spawnEnemy() {
+      const row = __webpack_exports__default.Math.Between(0, GRID_ROWS - 1);
+      const enemyX = GRID_X + GRID_COLS * CELL_SIZE + 50;
+      const enemyY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+      const enemy = new Enemy(
+        this,
+        enemyX,
+        enemyY,
+        "enemy"
+      );
+      this.enemies.push(enemy);
+>>>>>>> Stashed changes
     }
     create() {
       this.grid = new Grid(
@@ -146175,12 +146233,25 @@
         GRID_COLS
       );
       this.drawGrid();
+<<<<<<< Updated upstream
       this.drawToolbar();
+=======
+>>>>>>> Stashed changes
       this.input.on(
         "pointerdown",
         this.handleGridClick,
         this
       );
+<<<<<<< Updated upstream
+=======
+      this.spawnEnemy();
+      this.time.addEvent({
+        delay: 3e3,
+        callback: this.spawnEnemy,
+        callbackScope: this,
+        loop: true
+      });
+>>>>>>> Stashed changes
     }
   };
   new __webpack_exports__default.Game({

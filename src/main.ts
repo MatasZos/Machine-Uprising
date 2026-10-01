@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Grid } from "./grid/Grid";
 import { Shooter } from "./defenders/Shooter";
+import { Enemy } from "./enemies/Enemy";
 
 const GRID_ROWS = 5;
 const GRID_COLS = 8;
@@ -21,6 +22,7 @@ class MainScene extends Phaser.Scene {
   preload() {
     // temp image for defender
     this.load.image("player", "assets/learning/player.png");
+    this.load.image("enemy", "assets/learning/player.png");
   }
 
   private drawGrid() {
@@ -152,6 +154,24 @@ class MainScene extends Phaser.Scene {
 >>>>>>> Stashed changes
   }
 
+  private spawnEnemy() {
+
+  const row = Phaser.Math.Between(0, GRID_ROWS - 1);
+
+  const enemyX = GRID_X + GRID_COLS * CELL_SIZE + 50;
+  const enemyY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+
+  const enemy = new Enemy(
+    this,
+    enemyX,
+    enemyY,
+    "enemy"
+  );
+
+  this.enemies.push(enemy);
+
+}
+
   create() {
 
     this.grid = new Grid(
@@ -167,6 +187,16 @@ class MainScene extends Phaser.Scene {
       this.handleGridClick,
       this
     );
+
+    this.spawnEnemy();
+
+    this.time.addEvent({
+      delay: 3000,
+      callback: this.spawnEnemy,
+      callbackScope: this,
+      loop: true
+    });
+
   }
 }
 

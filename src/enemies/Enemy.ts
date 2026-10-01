@@ -1,4 +1,3 @@
-// Base enemy class
 import Phaser from "phaser";
 
 export class Enemy extends Phaser.GameObjects.Sprite {
@@ -25,7 +24,8 @@ export class Enemy extends Phaser.GameObjects.Sprite {
         }
     }
 
-    move() {
-        this.x -= this.speed * 0.01;
+    move(delta: number) {
+        this.x -= this.speed * (delta / 1000);
+    
     }
 }
