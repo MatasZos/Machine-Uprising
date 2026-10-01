@@ -46,9 +46,29 @@ class MainScene extends Phaser.Scene {
     }
   }
 
+<<<<<<< Updated upstream
   private drawToolbar() {
     const toolbarX = 100;
     const toolbarY = 20;
+=======
+  private drawToolbar(){
+    const toolbarX = 100;
+    const toolbarY = 20;
+
+    const button = this.add.rectangle(toolbarX, toolbarY, 150, 40, 0x333333);
+
+    const label = this.drawGrid.text(toolbarX, toolbarY, "Shooter", {fontSize:"18px", color:"#ffffff"});
+
+    button.on("pointerdown", () => {
+      this.selectedDefender = "player";
+      label.setColor("#00ff00");
+    });
+
+  }
+
+  private handleGridClick(pointer: Phaser.Input.Pointer){
+    //convert the mouse position into a grid column
+>>>>>>> Stashed changes
 
     const button = this.add.rectangle(toolbarX,toolbarY,150,40,0x333333);
 
@@ -109,12 +129,27 @@ class MainScene extends Phaser.Scene {
       this.selectedDefender
     );
 
+<<<<<<< Updated upstream
     // store shooter in grid
     this.grid.placeHuman(
       row,
       col,
       defender
     );
+=======
+    //create a defender at the chosen position
+
+    if(this.selectedDefender ===null){
+      return;
+    }
+
+    const defender = new Defender(this, defenderX, defenderY, this.selectedDefender);
+
+
+    //store the defender in the grid
+
+    this.grid.placeHuman(row,col,defender)
+>>>>>>> Stashed changes
   }
 
   create() {
