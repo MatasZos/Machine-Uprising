@@ -146226,6 +146226,11 @@
         loop: true
       });
     }
+    update(_time, delta) {
+      for (const enemy of this.enemies) {
+        enemy.move(delta);
+      }
+    }
   };
   new __webpack_exports__default.Game({
     type: __webpack_exports__default.AUTO,

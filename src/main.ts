@@ -162,8 +162,15 @@ class MainScene extends Phaser.Scene {
       callbackScope: this,
       loop: true
     });
+    
 
   }
+  update(_time: number, delta: number) {
+    for (const enemy of this.enemies) {
+        enemy.move(delta);
+    }
+}
+  
 }
 
 new Phaser.Game({
