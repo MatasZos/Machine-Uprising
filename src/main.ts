@@ -12,6 +12,7 @@ const GRID_Y = 100;
 class MainScene extends Phaser.Scene {
 
   private grid!: Grid;
+  private selectedDefender: string | null = null;
 
   constructor() {
     super('MainScene');
@@ -44,6 +45,19 @@ class MainScene extends Phaser.Scene {
       }
     }
   }
+
+  private drawToolbar() {
+    const toolbarX = 100;
+    const toolbarY = 20;
+
+    const button = this.add.rectangle(toolbarX,toolbarY,150,40,0x333333);
+
+    const label = this.add.text(toolbarX,toolbarY,"Shooter",{fontSize: "18px",color: "#ffffff"});
+
+    button.setInteractive({ useHandCursor: true });
+
+    button.on("pointerdown", () => {this.selectedDefender = "player";label.setColor("#00ff00");});
+}
 
   private handleGridClick(pointer: Phaser.Input.Pointer) {
 
@@ -83,11 +97,16 @@ class MainScene extends Phaser.Scene {
       GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
 
     // create shooter
+
+    if (this.selectedDefender === null) {
+      return;
+    }
+
     const defender = new Shooter(
       this,
       defenderX,
       defenderY,
-      "player"
+      this.selectedDefender
     );
 
     // store shooter in grid
@@ -106,6 +125,7 @@ class MainScene extends Phaser.Scene {
     );
 
     this.drawGrid();
+    this.drawToolbar();
 
     this.input.on(
       "pointerdown",
