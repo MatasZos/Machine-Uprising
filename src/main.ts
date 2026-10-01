@@ -23,7 +23,7 @@ class MainScene extends Phaser.Scene {
   preload() {
     // temp image for defender
     this.load.image("player", "assets/learning/player.png");
-    this.load.image("enemy", "assets/learning/player.png");
+    this.load.image("enemy", "assets/learning/robot.jpg");
   }
 
   private drawGrid() {
