@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Grid } from "./grid/Grid";
 import {Defender} from "./defenders/Defender";
+import {Shooter} from "./defenders/Shooter";
 
 
 const GRID_ROWS = 5;
@@ -77,9 +78,14 @@ class MainScene extends Phaser.Scene {
 
 
 
-    //create a defender at the chosen position
+    //create a shooter at the chosen position
 
-    const defender = new Defender(this, defenderX, defenderY, "player")
+    const defender = new Shooter(
+    this,
+    defenderX,
+    defenderY,
+    "player"
+);
 
 
     //store the defender in the grid
