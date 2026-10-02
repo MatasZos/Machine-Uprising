@@ -146052,20 +146052,21 @@
 
   // src/objects/projectile.ts
   var Projectile = class extends __webpack_exports__default.GameObjects.Sprite {
+    damage = 20;
+    speed = 300;
     constructor(scene, x, y) {
-      super(
-        scene,
-        x,
-        y,
-        "laser"
-      );
+      super(scene, x, y, "laser");
       scene.add.existing(this);
       scene.physics.add.existing(this);
       this.setDisplaySize(20, 4);
       const body = this.body;
-      body.setVelocityX(300);
+      body.setVelocityX(this.speed);
+      body.setAllowGravity(false);
+      scene.events.emit("projectile-created", this);
       scene.time.delayedCall(3e3, () => {
-        this.destroy();
+        if (this.active) {
+          this.destroy();
+        }
       });
     }
   };
@@ -146104,6 +146105,7 @@
     constructor(scene, x, y, texture) {
       super(scene, x, y, texture);
       scene.add.existing(this);
+      scene.physics.add.existing(this);
       this.setDisplaySize(60, 60);
       this.health = 100;
       this.speed = 50;
@@ -146111,6 +146113,7 @@
     }
     takeDamage(amount) {
       this.health -= amount;
+      console.log("Enemy health:", this.health);
       if (this.health <= 0) {
         this.destroy();
       }
@@ -146130,6 +146133,9 @@
     grid;
     selectedDefender = null;
     enemies = [];
+    // Physics groups
+    projectileGroup;
+    enemyGroup;
     constructor() {
       super("MainScene");
     }
@@ -146145,12 +146151,7 @@
         for (let col = 0; col < GRID_COLS; col++) {
           const x = GRID_X + col * CELL_SIZE;
           const y = GRID_Y + row * CELL_SIZE;
-          graphics.strokeRect(
-            x,
-            y,
-            CELL_SIZE,
-            CELL_SIZE
-          );
+          graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
         }
       }
     }
@@ -146158,7 +146159,10 @@
       const toolbarX = 100;
       const toolbarY = 20;
       const button = this.add.rectangle(toolbarX, toolbarY, 150, 40, 3355443);
-      const label = this.add.text(toolbarX, toolbarY, "Shooter", { fontSize: "18px", color: "#ffffff" });
+      const label = this.add.text(toolbarX, toolbarY, "Shooter", {
+        fontSize: "18px",
+        color: "#ffffff"
+      });
       button.setInteractive({ useHandCursor: true });
       button.on("pointerdown", () => {
         this.selectedDefender = "shooter";
@@ -146166,12 +146170,8 @@
       });
     }
     handleGridClick(pointer) {
-      const col = Math.floor(
-        (pointer.x - GRID_X) / CELL_SIZE
-      );
-      const row = Math.floor(
-        (pointer.y - GRID_Y) / CELL_SIZE
-      );
+      const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
+      const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
       if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) {
         return;
       }
@@ -146179,46 +146179,46 @@
       if (!cell.isEmpty()) {
         return;
       }
-      const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
-      const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
       if (this.selectedDefender === null) {
         return;
       }
-      const defender = new Shooter(
-        this,
-        defenderX,
-        defenderY
-      );
-      this.grid.placeHuman(
-        row,
-        col,
-        defender
-      );
+      const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
+      const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+      const defender = new Shooter(this, defenderX, defenderY);
+      this.grid.placeHuman(row, col, defender);
     }
     spawnEnemy() {
       const row = __webpack_exports__default.Math.Between(0, GRID_ROWS - 1);
       const enemyX = GRID_X + GRID_COLS * CELL_SIZE + 50;
       const enemyY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
-      const enemy = new Enemy(
-        this,
-        enemyX,
-        enemyY,
-        "enemy"
-      );
+      const enemy = new Enemy(this, enemyX, enemyY, "enemy");
       this.enemies.push(enemy);
+      this.enemyGroup.add(enemy);
     }
     create() {
-      this.grid = new Grid(
-        GRID_ROWS,
-        GRID_COLS
+      this.grid = new Grid(GRID_ROWS, GRID_COLS);
+      this.projectileGroup = this.physics.add.group({
+        runChildUpdate: false
+      });
+      this.enemyGroup = this.physics.add.group({
+        runChildUpdate: false
+      });
+      this.events.on("projectile-created", (projectile) => {
+        this.projectileGroup.add(projectile);
+      });
+      this.physics.add.overlap(
+        this.projectileGroup,
+        this.enemyGroup,
+        (projectileObject, enemyObject) => {
+          const projectile = projectileObject;
+          const enemy = enemyObject;
+          enemy.takeDamage(projectile.damage);
+          projectile.destroy();
+        }
       );
       this.drawGrid();
       this.drawToolbar();
-      this.input.on(
-        "pointerdown",
-        this.handleGridClick,
-        this
-      );
+      this.input.on("pointerdown", this.handleGridClick, this);
       this.spawnEnemy();
       this.time.addEvent({
         delay: 3e3,
@@ -146229,7 +146229,9 @@
     }
     update(_time, delta) {
       for (const enemy of this.enemies) {
-        enemy.move(delta);
+        if (enemy.active) {
+          enemy.move(delta);
+        }
       }
     }
   };
@@ -146239,7 +146241,7 @@
     height: 600,
     backgroundColor: "#1b1b1b",
     parent: "game-container",
-    // allows projectiles to move
+    // Arcade physics
     physics: {
       default: "arcade",
       arcade: {
