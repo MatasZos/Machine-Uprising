@@ -190,7 +190,9 @@ class MainScene extends Phaser.Scene {
           defender.getBounds()
         );
 
-      if (hit) {
+      if (hit && !enemy.isAttacking) {
+        // Stop enemy while attacking
+        enemy.isAttacking = true;
 
         // Remember which grid cell this defender is in
         const row = defender.getData("gridRow");
@@ -198,15 +200,29 @@ class MainScene extends Phaser.Scene {
 
         // Kill defender when enemy touches it
         defender.takeDamage(100);
+        // Wait half a second before attacking
+        this.time.delayedCall(500, () => {
+          if (defender.active) {
 
         // Clear the grid cell
         this.grid.removeOccupant(row, col);
+          // Kill defender when enemy touches it
+          defender.takeDamage(100);
+          
+          // Clear the grid cell
+          this.grid.removeOccupant(row, col);
 
         // Remove dead defender from our list
         this.defenders = this.defenders.filter(
-          d => d !== defender
+          // Remove dead defender from our list
+          this.defenders = this.defenders.filter(
+            d => d !== defender
         );
-        
+      }
+       // Enemy starts moving again
+      enemy.isAttacking = false;
+    });
+
         break;
       }
     }

@@ -146109,6 +146109,7 @@
     health;
     speed;
     damage;
+    isAttacking = false;
     constructor(scene, x, y, texture) {
       super(scene, x, y, texture);
       scene.add.existing(this);
@@ -146126,6 +146127,9 @@
       }
     }
     move(delta) {
+      if (this.isAttacking) {
+        return;
+      }
       this.x -= this.speed * (delta / 1e3);
     }
   };
@@ -146254,14 +146258,20 @@
             enemy.getBounds(),
             defender.getBounds()
           );
-          if (hit) {
+          if (hit && !enemy.isAttacking) {
+            enemy.isAttacking = true;
             const row = defender.getData("gridRow");
             const col = defender.getData("gridCol");
-            defender.takeDamage(100);
-            this.grid.removeOccupant(row, col);
-            this.defenders = this.defenders.filter(
-              (d) => d !== defender
-            );
+            this.time.delayedCall(500, () => {
+              if (defender.active) {
+                defender.takeDamage(100);
+                this.grid.removeOccupant(row, col);
+                this.defenders = this.defenders.filter(
+                  (d) => d !== defender
+                );
+              }
+              enemy.isAttacking = false;
+            });
             break;
           }
         }

@@ -5,6 +5,7 @@ export class Enemy extends Phaser.GameObjects.Sprite {
     health: number;
     speed: number;
     damage: number;
+    isAttacking: boolean = false;
 
     constructor(
         scene: Phaser.Scene,
@@ -38,6 +39,9 @@ export class Enemy extends Phaser.GameObjects.Sprite {
     }
 
     move(delta: number) {
+        if (this.isAttacking) {
+            return;
+        }
         this.x -= this.speed * (delta / 1000);
     }
 }
