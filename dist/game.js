@@ -146223,8 +146223,8 @@
             enemy.getBounds()
           );
           if (hit) {
+            enemy.takeDamage(projectile.damage);
             projectile.destroy();
-            enemy.destroy();
             break;
           }
         }

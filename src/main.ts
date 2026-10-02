@@ -152,11 +152,11 @@ class MainScene extends Phaser.Scene {
 
         if (hit) {
 
+          //Damage enemy 
+          enemy.takeDamage(projectile.damage);
+
           // Remove projectile
           projectile.destroy();
-
-          // Remove enemy
-          enemy.destroy();
 
           break;
         }
