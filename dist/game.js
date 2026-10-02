@@ -146073,13 +146073,14 @@
 
   // src/defenders/Shooter.ts
   var Shooter = class extends Defender {
+    shootTimer;
     constructor(scene, x, y) {
       super(scene, x, y, "shooter");
       this.setDisplaySize(60, 60);
       this.health = 100;
       this.damage = 20;
       console.log("Shooter created");
-      scene.time.addEvent({
+      this.shootTimer = scene.time.addEvent({
         delay: 1e3,
         callback: () => {
           this.shoot();
@@ -146094,6 +146095,12 @@
         this.x + 25,
         this.y - 2
       );
+    }
+    destroy(fromScene) {
+      if (this.shootTimer) {
+        this.shootTimer.destroy();
+      }
+      super.destroy(fromScene);
     }
   };
 
@@ -146247,6 +146254,9 @@
           );
           if (hit) {
             defender.takeDamage(100);
+            this.defenders = this.defenders.filter(
+              (d) => d !== defender
+            );
             break;
           }
         }

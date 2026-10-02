@@ -192,6 +192,11 @@ class MainScene extends Phaser.Scene {
         // Kill defender when enemy touches it
         defender.takeDamage(100);
 
+        // Remove dead defender from our list
+        this.defenders = this.defenders.filter(
+          d => d !== defender
+        );
+        
         break;
       }
     }

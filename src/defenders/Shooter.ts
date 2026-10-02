@@ -4,6 +4,8 @@ import { Projectile } from "../objects/projectile";
 
 export class Shooter extends Defender {
 
+    private shootTimer: Phaser.Time.TimerEvent;
+    
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -18,7 +20,7 @@ export class Shooter extends Defender {
 
         console.log("Shooter created");
 
-        scene.time.addEvent({
+        this.shootTimer = scene.time.addEvent({
             delay: 1000,
             callback: () => {
                 this.shoot();
@@ -36,5 +38,14 @@ export class Shooter extends Defender {
             this.x + 25,
             this.y - 2
         );
+    }
+    
+    destroy(fromScene?: boolean) {
+
+        if (this.shootTimer) {
+            this.shootTimer.destroy();
+        }
+
+        super.destroy(fromScene);
     }
 }
