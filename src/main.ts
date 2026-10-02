@@ -111,6 +111,9 @@ class MainScene extends Phaser.Scene {
     // Store shooter in grid
     this.grid.placeHuman(row,col,defender);
 
+    defender.setData("gridRow", row);
+    defender.setData("gridCol", col);
+
     this.defenders.push(defender);
   }
 
@@ -189,8 +192,15 @@ class MainScene extends Phaser.Scene {
 
       if (hit) {
 
+        // Remember which grid cell this defender is in
+        const row = defender.getData("gridRow");
+        const col = defender.getData("gridCol");
+
         // Kill defender when enemy touches it
         defender.takeDamage(100);
+
+        // Clear the grid cell
+        this.grid.removeOccupant(row, col);
 
         // Remove dead defender from our list
         this.defenders = this.defenders.filter(

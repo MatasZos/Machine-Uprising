@@ -146208,6 +146208,8 @@
       const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
       const defender = new Shooter(this, defenderX, defenderY);
       this.grid.placeHuman(row, col, defender);
+      defender.setData("gridRow", row);
+      defender.setData("gridCol", col);
       this.defenders.push(defender);
     }
     spawnEnemy() {
@@ -146253,7 +146255,10 @@
             defender.getBounds()
           );
           if (hit) {
+            const row = defender.getData("gridRow");
+            const col = defender.getData("gridCol");
             defender.takeDamage(100);
+            this.grid.removeOccupant(row, col);
             this.defenders = this.defenders.filter(
               (d) => d !== defender
             );
