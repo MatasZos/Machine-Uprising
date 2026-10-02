@@ -21,9 +21,11 @@ class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    // temp image for defender
-    this.load.image("player", "assets/learning/player.png");
-    this.load.image("enemy", "assets/learning/robot.jpg");
+    //asset images
+    this.load.image("shooter", "assets/defenders/shooterdefender.png");
+    this.load.image("enemy", "assets/enemies/meleerobot.png");
+    this.load.image("laser", "assets/effects/projectile.png");
+    
   }
 
   private drawGrid() {
@@ -59,7 +61,7 @@ class MainScene extends Phaser.Scene {
 
     button.setInteractive({ useHandCursor: true });
 
-    button.on("pointerdown", () => {this.selectedDefender = "player";label.setColor("#00ff00");});
+    button.on("pointerdown", () => {this.selectedDefender = "shooter";label.setColor("#00ff00");});
 }
 
   private handleGridClick(pointer: Phaser.Input.Pointer) {
@@ -109,7 +111,6 @@ class MainScene extends Phaser.Scene {
       this,
       defenderX,
       defenderY,
-      this.selectedDefender
     );
 
     // store shooter in grid
@@ -180,7 +181,7 @@ new Phaser.Game({
   width: 800,
   height: 600,
 
-  backgroundColor: '#008409',
+  backgroundColor: '#1b1b1b',
 
   parent: 'game-container',
 

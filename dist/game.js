@@ -146051,18 +146051,17 @@
   };
 
   // src/objects/projectile.ts
-  var Projectile = class extends __webpack_exports__default.GameObjects.Rectangle {
+  var Projectile = class extends __webpack_exports__default.GameObjects.Sprite {
     constructor(scene, x, y) {
       super(
         scene,
         x,
         y,
-        15,
-        6,
-        16776960
+        "laser"
       );
       scene.add.existing(this);
       scene.physics.add.existing(this);
+      this.setDisplaySize(20, 4);
       const body = this.body;
       body.setVelocityX(300);
       scene.time.delayedCall(3e3, () => {
@@ -146073,8 +146072,9 @@
 
   // src/defenders/Shooter.ts
   var Shooter = class extends Defender {
-    constructor(scene, x, y, texture) {
-      super(scene, x, y, texture);
+    constructor(scene, x, y) {
+      super(scene, x, y, "shooter");
+      this.setDisplaySize(60, 60);
       this.health = 100;
       this.damage = 20;
       console.log("Shooter created");
@@ -146090,8 +146090,8 @@
       console.log("Shooter fired");
       new Projectile(
         this.scene,
-        this.x + 30,
-        this.y
+        this.x + 25,
+        this.y - 2
       );
     }
   };
@@ -146104,6 +146104,7 @@
     constructor(scene, x, y, texture) {
       super(scene, x, y, texture);
       scene.add.existing(this);
+      this.setDisplaySize(60, 60);
       this.health = 100;
       this.speed = 50;
       this.damage = 10;
@@ -146133,8 +146134,9 @@
       super("MainScene");
     }
     preload() {
-      this.load.image("player", "assets/learning/player.png");
-      this.load.image("enemy", "assets/learning/robot.jpg");
+      this.load.image("shooter", "assets/defenders/shooterdefender.png");
+      this.load.image("enemy", "assets/enemies/meleerobot.png");
+      this.load.image("laser", "assets/effects/projectile.png");
     }
     drawGrid() {
       const graphics = this.add.graphics();
@@ -146159,7 +146161,7 @@
       const label = this.add.text(toolbarX, toolbarY, "Shooter", { fontSize: "18px", color: "#ffffff" });
       button.setInteractive({ useHandCursor: true });
       button.on("pointerdown", () => {
-        this.selectedDefender = "player";
+        this.selectedDefender = "shooter";
         label.setColor("#00ff00");
       });
     }
@@ -146185,8 +146187,7 @@
       const defender = new Shooter(
         this,
         defenderX,
-        defenderY,
-        this.selectedDefender
+        defenderY
       );
       this.grid.placeHuman(
         row,
@@ -146236,7 +146237,7 @@
     type: __webpack_exports__default.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: "#008409",
+    backgroundColor: "#1b1b1b",
     parent: "game-container",
     // allows projectiles to move
     physics: {

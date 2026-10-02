@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-export class Projectile extends Phaser.GameObjects.Rectangle {
+export class Projectile extends Phaser.GameObjects.Sprite {
 
     constructor(
         scene: Phaser.Scene,
@@ -11,14 +11,14 @@ export class Projectile extends Phaser.GameObjects.Rectangle {
             scene,
             x,
             y,
-            15,
-            6,
-            0xffff00
+            "laser"
         );
 
         scene.add.existing(this);
 
         scene.physics.add.existing(this);
+
+        this.setDisplaySize(20, 4);
 
         const body = this.body as Phaser.Physics.Arcade.Body;
 

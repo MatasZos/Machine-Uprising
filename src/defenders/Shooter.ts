@@ -8,9 +8,10 @@ export class Shooter extends Defender {
         scene: Phaser.Scene,
         x: number,
         y: number,
-        texture: string
     ) {
-        super(scene, x, y, texture);
+        super(scene, x, y, "shooter");
+
+        this.setDisplaySize(60,60);
 
         this.health = 100;
         this.damage = 20;
@@ -32,8 +33,8 @@ export class Shooter extends Defender {
 
         new Projectile(
             this.scene,
-            this.x + 30,
-            this.y
+            this.x + 25,
+            this.y - 2
         );
     }
 }
