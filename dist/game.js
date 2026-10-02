@@ -146134,6 +146134,7 @@
     selectedDefender = null;
     enemies = [];
     projectiles = [];
+    defenders = [];
     constructor() {
       super("MainScene");
     }
@@ -146200,6 +146201,7 @@
       const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
       const defender = new Shooter(this, defenderX, defenderY);
       this.grid.placeHuman(row, col, defender);
+      this.defenders.push(defender);
     }
     spawnEnemy() {
       const row = __webpack_exports__default.Math.Between(0, GRID_ROWS - 1);
@@ -146225,6 +146227,26 @@
           if (hit) {
             enemy.takeDamage(projectile.damage);
             projectile.destroy();
+            break;
+          }
+        }
+      }
+    }
+    handleEnemyDefenderCollision() {
+      for (const enemy of this.enemies) {
+        if (!enemy.active) {
+          continue;
+        }
+        for (const defender of this.defenders) {
+          if (!defender.active) {
+            continue;
+          }
+          const hit = __webpack_exports__default.Geom.Intersects.RectangleToRectangle(
+            enemy.getBounds(),
+            defender.getBounds()
+          );
+          if (hit) {
+            defender.takeDamage(100);
             break;
           }
         }
@@ -146265,6 +146287,7 @@
         }
       }
       this.handleProjectileEnemyCollision();
+      this.handleEnemyDefenderCollision();
     }
   };
   new __webpack_exports__default.Game({

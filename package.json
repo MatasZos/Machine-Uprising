@@ -10,7 +10,7 @@
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:8000"
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.6.4",
     "esbuild": "^0.25.0",
     "typescript": "^5.9.0"
   },

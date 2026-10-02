@@ -16,6 +16,7 @@ class MainScene extends Phaser.Scene {
   private selectedDefender: string | null = null;
   private enemies: Enemy[] = [];
   private projectiles: Projectile[] = [];
+  private defenders: Shooter[] = [];
 
   constructor() {
     super('MainScene');
@@ -109,6 +110,8 @@ class MainScene extends Phaser.Scene {
 
     // Store shooter in grid
     this.grid.placeHuman(row,col,defender);
+
+    this.defenders.push(defender);
   }
 
   private spawnEnemy() {
@@ -164,6 +167,37 @@ class MainScene extends Phaser.Scene {
     }
   }
 
+  private handleEnemyDefenderCollision() {
+
+  for (const enemy of this.enemies) {
+
+    if (!enemy.active) {
+      continue;
+    }
+
+    for (const defender of this.defenders) {
+
+      if (!defender.active) {
+        continue;
+      }
+
+      const hit =
+        Phaser.Geom.Intersects.RectangleToRectangle(
+          enemy.getBounds(),
+          defender.getBounds()
+        );
+
+      if (hit) {
+
+        // Kill defender when enemy touches it
+        defender.takeDamage(100);
+
+        break;
+      }
+    }
+  }
+}
+
   create() {
     // Create grid
     this.grid = new Grid(GRID_ROWS,GRID_COLS);
@@ -217,6 +251,9 @@ class MainScene extends Phaser.Scene {
     }
     // Check projectile/enemy collisions
     this.handleProjectileEnemyCollision();
+    
+    // Check enemy/defender collisions
+    this.handleEnemyDefenderCollision();
   }
 }
 
