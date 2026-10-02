@@ -146057,17 +146057,17 @@
     constructor(scene, x, y) {
       super(scene, x, y, "laser");
       scene.add.existing(this);
-      scene.physics.add.existing(this);
       this.setDisplaySize(20, 4);
-      const body = this.body;
-      body.setVelocityX(this.speed);
-      body.setAllowGravity(false);
-      scene.events.emit("projectile-created", this);
-      scene.time.delayedCall(3e3, () => {
-        if (this.active) {
-          this.destroy();
-        }
-      });
+      scene.events.emit(
+        "projectile-created",
+        this
+      );
+    }
+    move(delta) {
+      this.x += this.speed * (delta / 1e3);
+      if (this.x > 800) {
+        this.destroy();
+      }
     }
   };
 
@@ -146133,9 +146133,7 @@
     grid;
     selectedDefender = null;
     enemies = [];
-    // Physics groups
-    projectileGroup;
-    enemyGroup;
+    projectiles = [];
     constructor() {
       super("MainScene");
     }
@@ -146151,7 +146149,12 @@
         for (let col = 0; col < GRID_COLS; col++) {
           const x = GRID_X + col * CELL_SIZE;
           const y = GRID_Y + row * CELL_SIZE;
-          graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+          graphics.strokeRect(
+            x,
+            y,
+            CELL_SIZE,
+            CELL_SIZE
+          );
         }
       }
     }
@@ -146159,19 +146162,30 @@
       const toolbarX = 100;
       const toolbarY = 20;
       const button = this.add.rectangle(toolbarX, toolbarY, 150, 40, 3355443);
-      const label = this.add.text(toolbarX, toolbarY, "Shooter", {
-        fontSize: "18px",
-        color: "#ffffff"
+      const label = this.add.text(
+        toolbarX,
+        toolbarY,
+        "Shooter",
+        {
+          fontSize: "18px",
+          color: "#ffffff"
+        }
+      );
+      button.setInteractive({
+        useHandCursor: true
       });
-      button.setInteractive({ useHandCursor: true });
       button.on("pointerdown", () => {
         this.selectedDefender = "shooter";
         label.setColor("#00ff00");
       });
     }
     handleGridClick(pointer) {
-      const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
-      const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
+      const col = Math.floor(
+        (pointer.x - GRID_X) / CELL_SIZE
+      );
+      const row = Math.floor(
+        (pointer.y - GRID_Y) / CELL_SIZE
+      );
       if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) {
         return;
       }
@@ -146193,32 +146207,44 @@
       const enemyY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
       const enemy = new Enemy(this, enemyX, enemyY, "enemy");
       this.enemies.push(enemy);
-      this.enemyGroup.add(enemy);
+    }
+    // Check whether a projectile has hit an enemy
+    handleProjectileEnemyCollision() {
+      for (const projectile of this.projectiles) {
+        if (!projectile.active) {
+          continue;
+        }
+        for (const enemy of this.enemies) {
+          if (!enemy.active) {
+            continue;
+          }
+          const hit = __webpack_exports__default.Geom.Intersects.RectangleToRectangle(
+            projectile.getBounds(),
+            enemy.getBounds()
+          );
+          if (hit) {
+            projectile.destroy();
+            enemy.destroy();
+            break;
+          }
+        }
+      }
     }
     create() {
       this.grid = new Grid(GRID_ROWS, GRID_COLS);
-      this.projectileGroup = this.physics.add.group({
-        runChildUpdate: false
-      });
-      this.enemyGroup = this.physics.add.group({
-        runChildUpdate: false
-      });
-      this.events.on("projectile-created", (projectile) => {
-        this.projectileGroup.add(projectile);
-      });
-      this.physics.add.overlap(
-        this.projectileGroup,
-        this.enemyGroup,
-        (projectileObject, enemyObject) => {
-          const projectile = projectileObject;
-          const enemy = enemyObject;
-          enemy.takeDamage(projectile.damage);
-          projectile.destroy();
+      this.events.on(
+        "projectile-created",
+        (projectile) => {
+          this.projectiles.push(projectile);
         }
       );
       this.drawGrid();
       this.drawToolbar();
-      this.input.on("pointerdown", this.handleGridClick, this);
+      this.input.on(
+        "pointerdown",
+        this.handleGridClick,
+        this
+      );
       this.spawnEnemy();
       this.time.addEvent({
         delay: 3e3,
@@ -146233,6 +146259,12 @@
           enemy.move(delta);
         }
       }
+      for (const projectile of this.projectiles) {
+        if (projectile.active) {
+          projectile.move(delta);
+        }
+      }
+      this.handleProjectileEnemyCollision();
     }
   };
   new __webpack_exports__default.Game({
@@ -146241,7 +146273,6 @@
     height: 600,
     backgroundColor: "#1b1b1b",
     parent: "game-container",
-    // Arcade physics
     physics: {
       default: "arcade",
       arcade: {

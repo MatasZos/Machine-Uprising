@@ -15,10 +15,7 @@ class MainScene extends Phaser.Scene {
   private grid!: Grid;
   private selectedDefender: string | null = null;
   private enemies: Enemy[] = [];
-
-  // Physics groups
-  private projectileGroup!: Phaser.Physics.Arcade.Group;
-  private enemyGroup!: Phaser.Physics.Arcade.Group;
+  private projectiles: Projectile[] = [];
 
   constructor() {
     super('MainScene');
@@ -26,22 +23,25 @@ class MainScene extends Phaser.Scene {
 
   preload() {
     // Assets
-    this.load.image("shooter", "assets/defenders/shooterdefender.png");
-    this.load.image("enemy", "assets/enemies/meleerobot.png");
-    this.load.image("laser", "assets/effects/projectile.png");
+    this.load.image("shooter","assets/defenders/shooterdefender.png");
+
+    this.load.image("enemy","assets/enemies/meleerobot.png");
+
+    this.load.image("laser","assets/effects/projectile.png" );
   }
 
   private drawGrid() {
     const graphics = this.add.graphics();
-    graphics.lineStyle(2, 0xffffff, 0.5);
 
-    // Draw cells
+    graphics.lineStyle(2,0xffffff,0.5);
+
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         const x = GRID_X + col * CELL_SIZE;
         const y = GRID_Y + row * CELL_SIZE;
 
-        graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+        graphics.strokeRect( x, y, CELL_SIZE,CELL_SIZE
+        );
       }
     }
   }
@@ -50,14 +50,17 @@ class MainScene extends Phaser.Scene {
     const toolbarX = 100;
     const toolbarY = 20;
 
-    // Shooter button
-    const button = this.add.rectangle(toolbarX, toolbarY, 150, 40, 0x333333);
-    const label = this.add.text(toolbarX, toolbarY, "Shooter", {
-      fontSize: "18px",
-      color: "#ffffff"
-    });
+    const button = this.add.rectangle(toolbarX,toolbarY,150,40,0x333333 );
 
-    button.setInteractive({ useHandCursor: true });
+    const label = this.add.text(toolbarX,toolbarY,"Shooter",{
+        fontSize: "18px",
+        color: "#ffffff"
+      }
+    );
+
+    button.setInteractive({
+      useHandCursor: true
+    });
 
     button.on("pointerdown", () => {
       this.selectedDefender = "shooter";
@@ -65,96 +68,128 @@ class MainScene extends Phaser.Scene {
     });
   }
 
-  private handleGridClick(pointer: Phaser.Input.Pointer) {
-    // Get grid position
-    const col = Math.floor((pointer.x - GRID_X) / CELL_SIZE);
-    const row = Math.floor((pointer.y - GRID_Y) / CELL_SIZE);
+  private handleGridClick(
+    pointer: Phaser.Input.Pointer
+  ) {
 
-    // Ignore outside grid
-    if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) {
+    // Convert mouse position into grid position
+    const col = Math.floor(
+      (pointer.x - GRID_X) / CELL_SIZE
+    );
+
+    const row = Math.floor(
+      (pointer.y - GRID_Y) / CELL_SIZE
+    );
+
+    // Ignore clicks outside grid
+    if (
+      row < 0 ||row >= GRID_ROWS ||col < 0 ||col >= GRID_COLS) {
       return;
     }
 
-    const cell = this.grid.getCell(row, col);
+    const cell =this.grid.getCell(row, col);
 
-    // Cell already used
+    // Dont allow two defenders in the same cell
     if (!cell.isEmpty()) {
       return;
     }
 
-    // No defender selected
+    // Nothing selected
     if (this.selectedDefender === null) {
       return;
     }
 
-    // Cell centre
-    const defenderX = GRID_X + col * CELL_SIZE + CELL_SIZE / 2;
-    const defenderY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+    // Centre of selected grid cell
+    const defenderX =GRID_X +col * CELL_SIZE +CELL_SIZE / 2;
+
+    const defenderY =GRID_Y +row * CELL_SIZE +CELL_SIZE / 2;
 
     // Create shooter
-    const defender = new Shooter(this, defenderX, defenderY);
+    const defender = new Shooter(this,defenderX,defenderY);
 
-    this.grid.placeHuman(row, col, defender);
+    // Store shooter in grid
+    this.grid.placeHuman(row,col,defender);
   }
 
   private spawnEnemy() {
-    // Random lane
-    const row = Phaser.Math.Between(0, GRID_ROWS - 1);
 
-    const enemyX = GRID_X + GRID_COLS * CELL_SIZE + 50;
-    const enemyY = GRID_Y + row * CELL_SIZE + CELL_SIZE / 2;
+    // Pick random lane
+    const row = Phaser.Math.Between(0,GRID_ROWS - 1);
+
+    const enemyX =GRID_X +GRID_COLS * CELL_SIZE +50;
+
+    const enemyY = GRID_Y +row * CELL_SIZE +CELL_SIZE / 2;
 
     // Create enemy
-    const enemy = new Enemy(this, enemyX, enemyY, "enemy");
+    const enemy = new Enemy(this,enemyX,enemyY,"enemy");
 
     this.enemies.push(enemy);
-    this.enemyGroup.add(enemy);
+  }
+
+  // Check whether a projectile has hit an enemy
+  private handleProjectileEnemyCollision() {
+
+    for (const projectile of this.projectiles) {
+
+      // Ignore destroyed projectiles
+      if (!projectile.active) {
+        continue;
+      }
+
+      for (const enemy of this.enemies) {
+
+        // Ignore destroyed enemies
+        if (!enemy.active) {
+          continue;
+        }
+
+        // Check whether their rectangles overlap
+        const hit =
+          Phaser.Geom.Intersects.RectangleToRectangle(
+            projectile.getBounds(),
+            enemy.getBounds()
+          );
+
+        if (hit) {
+
+          // Remove projectile
+          projectile.destroy();
+
+          // Remove enemy
+          enemy.destroy();
+
+          break;
+        }
+      }
+    }
   }
 
   create() {
     // Create grid
-    this.grid = new Grid(GRID_ROWS, GRID_COLS);
+    this.grid = new Grid(GRID_ROWS,GRID_COLS);
 
-    // Physics groups
-    this.projectileGroup = this.physics.add.group({
-  runChildUpdate: false
-});
+    // Store projectiles created by shooters
+    this.events.on(
+      "projectile-created",
+      (projectile: Projectile) => {
+        this.projectiles.push(projectile);
 
-this.enemyGroup = this.physics.add.group({
-  runChildUpdate: false
-});
-
-    // Add new projectiles
-    this.events.on("projectile-created", (projectile: Projectile) => {
-      this.projectileGroup.add(projectile);
-    });
-
-    // Projectile hits enemy
-    this.physics.add.overlap(
-      this.projectileGroup,
-      this.enemyGroup,
-      (projectileObject, enemyObject) => {
-        const projectile = projectileObject as Projectile;
-        const enemy = enemyObject as Enemy;
-
-        // Damage enemy
-        enemy.takeDamage(projectile.damage);
-
-        // Remove projectile
-        projectile.destroy();
       }
     );
 
+    // Draw game
     this.drawGrid();
     this.drawToolbar();
 
-    // Grid clicks
-    this.input.on("pointerdown", this.handleGridClick, this);
+    // Grid clicking
+    this.input.on(
+      "pointerdown",
+      this.handleGridClick,
+      this
+    );
 
-    // First enemy
     this.spawnEnemy();
 
-    // Spawn enemies
     this.time.addEvent({
       delay: 3000,
       callback: this.spawnEnemy,
@@ -163,13 +198,25 @@ this.enemyGroup = this.physics.add.group({
     });
   }
 
-  update(_time: number, delta: number) {
+  update(
+    _time: number,
+    delta: number
+  ) {
     // Move enemies
     for (const enemy of this.enemies) {
       if (enemy.active) {
         enemy.move(delta);
       }
     }
+
+    // Move projectiles
+    for (const projectile of this.projectiles) {
+      if (projectile.active) {
+        projectile.move(delta);
+      }
+    }
+    // Check projectile/enemy collisions
+    this.handleProjectileEnemyCollision();
   }
 }
 
@@ -180,7 +227,6 @@ new Phaser.Game({
   backgroundColor: '#1b1b1b',
   parent: 'game-container',
 
-  // Arcade physics
   physics: {
     default: 'arcade',
     arcade: {

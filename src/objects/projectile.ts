@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 
-export class Projectile extends Phaser.GameObjects.Sprite {
+export class Projectile
+    extends Phaser.GameObjects.Sprite {
+
     damage: number = 20;
     speed: number = 300;
 
@@ -12,23 +14,20 @@ export class Projectile extends Phaser.GameObjects.Sprite {
         super(scene, x, y, "laser");
 
         scene.add.existing(this);
-        scene.physics.add.existing(this);
 
         this.setDisplaySize(20, 4);
 
-        // Set projectile velocity
-        const body = this.body as Phaser.Physics.Arcade.Body;
-        body.setVelocityX(this.speed);
-        body.setAllowGravity(false);
+        // projectile exists in mainscene
+        scene.events.emit(
+            "projectile-created",
+            this
+        );
+    }
+    move(delta: number) {
+        this.x += this.speed * (delta / 1000);
+        if (this.x > 800) {
+            this.destroy();
 
-        // Send projectile to MainScene
-        scene.events.emit("projectile-created", this);
-
-        // Remove after 3 seconds
-        scene.time.delayedCall(3000, () => {
-            if (this.active) {
-                this.destroy();
-            }
-        });
+        }
     }
 }
