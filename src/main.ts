@@ -198,22 +198,16 @@ class MainScene extends Phaser.Scene {
         const row = defender.getData("gridRow");
         const col = defender.getData("gridCol");
 
-        // Kill defender when enemy touches it
-        defender.takeDamage(100);
         // Wait half a second before attacking
         this.time.delayedCall(500, () => {
           if (defender.active) {
 
-        // Clear the grid cell
-        this.grid.removeOccupant(row, col);
           // Kill defender when enemy touches it
           defender.takeDamage(100);
           
           // Clear the grid cell
           this.grid.removeOccupant(row, col);
 
-        // Remove dead defender from our list
-        this.defenders = this.defenders.filter(
           // Remove dead defender from our list
           this.defenders = this.defenders.filter(
             d => d !== defender
